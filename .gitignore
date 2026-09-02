@@ -1,0 +1,65 @@
+# ===== Environment / Secrets =====
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+!backend/.env.example
+
+# ===== Backend (Spring Boot / Maven / Java) =====
+backend/target/
+backend/*.jar
+backend/*.war
+backend/HELP.md
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# ===== Frontend (React / Vite / Node) =====
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/node_modules/.vite/
+frontend/node_modules/.vite-temp/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.local
+
+# ===== IDE - IntelliJ =====
+.idea/
+backend/.idea/
+frontend/.idea/
+shop/.idea/
+*.iml
+*.iws
+
+# ===== IDE - VSCode / Eclipse =====
+.vscode/
+*.code-workspace
+.settings/
+.classpath
+.project
+
+# ===== Docker =====
+docker-compose.override.yml
+**/postgres-data/
+**/pgdata/
+
+# ===== Database =====
+*.sql.bak
+*.dump
+
+# ===== OS junk =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Debug (removed before delivery) =====
+**/Test.java
+**/debug/
