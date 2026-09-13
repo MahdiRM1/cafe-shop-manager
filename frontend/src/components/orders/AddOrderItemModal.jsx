@@ -42,7 +42,7 @@ export default function AddOrderItemModal({ open, item, onClose, onSubmit }) {
   return (
     <div
       dir="rtl"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm animate-fade-in-up"
       onClick={onClose}
     >
       <form

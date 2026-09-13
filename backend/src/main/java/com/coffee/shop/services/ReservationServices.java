@@ -25,6 +25,8 @@ public class ReservationServices {
     public ReservationResponseDto create(Long tableId, ReservationRequestDto dto) {
         RestaurantTable table = tableRepository.findById(tableId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.TABLE_NOT_FOUND));
+        table.setStatus(TableStatus.RESERVED);
+        tableRepository.save(table);
 
         Reservation reservation = new Reservation();
         toObj(dto, table, reservation);

@@ -23,7 +23,7 @@ export default function HomePage() {
   }, [user, loading, navigate]);
 
   return (
-    <p className="text-center text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800/60 py-10">
+    <p className="text-center text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800/60 py-10 duration-300">
       در حال انتقال...
     </p>
   );

@@ -31,7 +31,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div dir='rtl' className="min-h-screen bg-gray-100 dark:bg-gray-950 px-4 flex items-center justify-center">
+    <div dir='rtl' className="min-h-screen bg-gray-100 dark:bg-gray-950 px-4 flex items-center justify-center duration-300">
       <div className="fixed top-4 left-4">
         <ThemeToggle />
       </div>

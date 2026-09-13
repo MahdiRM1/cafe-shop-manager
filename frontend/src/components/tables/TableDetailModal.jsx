@@ -20,12 +20,25 @@ export default function TableDetailModal({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const getDefaultReservationTime = () => {
+    const now = new Date();
+    now.setHours(20, 0, 0, 0);
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   useEffect(() => {
     if (!open) return;
 
     setCustomerName("");
     setCustomerPhone("");
-    setReservationTime("");
+    setReservationTime(getDefaultReservationTime());
     setNote("");
     setError("");
   }, [open, table]);
@@ -103,7 +116,7 @@ export default function TableDetailModal({
   return (
     <div
       dir="rtl"
-      className="fixed inset-0 bg-black/40 flex items-center justify-center px-4 z-50"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center px-4 z-50 animate-fade-in-up"
       onClick={onClose}
     >
       <div
@@ -314,6 +327,7 @@ export default function TableDetailModal({
                 type="text"
                 value={customerPhone}
                 onChange={setCustomerPhone}
+                required
               />
 
               <DateTimeField

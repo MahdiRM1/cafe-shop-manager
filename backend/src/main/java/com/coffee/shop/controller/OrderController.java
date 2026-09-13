@@ -45,34 +45,34 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER', 'BARISTA')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
     public ResponseEntity<OrderResponseDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(orderServices.getById(id));
     }
 
     @GetMapping("/{orderId}/items")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER', 'BARISTA')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
     public ResponseEntity<List<OrderItemResponseDto>> getOrderItems
             (@PathVariable Long orderId) {
         return ResponseEntity.ok(orderServices.getItems(orderId));
     }
 
     @PostMapping("/{orderId}/items")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER', 'BARISTA')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
     public ResponseEntity<OrderItemResponseDto> addItem
             (@PathVariable Long orderId, @RequestBody @Valid OrderItemRequestDto dto) {
         return ResponseEntity.ok(orderServices.addItem(orderId, dto));
     }
 
     @PatchMapping("/{orderId}/items/{itemId}")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER', 'BARISTA')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
     public ResponseEntity<OrderItemResponseDto> updateItem
             (@PathVariable Long orderId, @PathVariable Long itemId, @RequestBody @Valid OrderItemUpdateQuantityRequestDto dto) {
         return ResponseEntity.ok(orderServices.updateItemQuantity(orderId, itemId, dto));
     }
 
     @DeleteMapping("/{orderId}/items/{itemId}")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER', 'BARISTA')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
     public ResponseEntity<String> removeItem
             (@PathVariable Long orderId, @PathVariable Long itemId) {
         return ResponseEntity.ok(orderServices.removeItem(orderId, itemId));

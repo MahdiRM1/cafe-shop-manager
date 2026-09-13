@@ -404,7 +404,7 @@ function TopItemsTab() {
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 duration-300">
       <DateRangePicker from={from} to={to} onFrom={setFrom} onTo={setTo} />
 
       {error && (
@@ -689,7 +689,7 @@ function ShiftsTab() {
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-gray-100 dark:border-gray-800 p-5">
+                  <div className="border-t border-gray-100 dark:border-gray-800 p-5 animate-expand">
                     {!report ? (
                       <p className="text-sm text-gray-400 dark:text-gray-500">
                         گزارش این شیفت در دسترس نیست

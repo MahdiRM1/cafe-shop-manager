@@ -22,7 +22,6 @@ export default function UserManagementPage() {
   const roles = {
     MANAGER: "مدیر",
     CASHIER: "صندوقدار",
-    BARISTA: "باریستا",
   };
 
   const loadUsers = async () => {

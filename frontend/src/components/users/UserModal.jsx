@@ -70,7 +70,7 @@ export default function UserModal({
   return (
     <div
       dir="rtl"
-      className="fixed inset-0 bg-black/40 flex items-center justify-center px-4 z-50"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center px-4 z-50 animate-fade-in-up"
       onClick={onClose}
     >
       <form
@@ -93,14 +93,8 @@ export default function UserModal({
         <FormField label="نام کاربری" type="text" value={username} onChange={setUsername} required />
         {!isEdit && ( <PasswordField label="رمز عبور" value={password} onChange={setPassword} required /> )}
         <FormField label="نام کامل" type="text" value={fullName} onChange={setFullName} required />
-        <SelectField
-          label="نقش"
-          value={role}
-          onChange={setRole}
-          options={[{value: 'CASHIER', label: 'صندوقدار'}, {value: 'BARISTA', label: 'باریستا'}]}
-          required
-        />
 
+        
         <div className="flex gap-3 pt-2">
           <button
             type="button"

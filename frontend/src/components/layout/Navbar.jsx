@@ -6,7 +6,6 @@ import ThemeToggle from '../ui/ThemeToggle';
 const roleLabels = {
   MANAGER: 'مدیر',
   CASHIER: 'صندوقدار',
-  BARISTA: 'باریستا',
 };
 
 export default function Navbar() {
@@ -36,7 +35,7 @@ export default function Navbar() {
   return (
     <div className="bg-slate-50 dark:bg-gray-950">
       {/* Top Navigation */}
-      <nav className="bg-white border-slate-200 dark:bg-gray-900 shadow-sm fixed top-0 left-0 right-0 z-50">
+      <nav className="bg-white border-slate-200 dark:bg-gray-900 shadow-sm fixed top-0 left-0 right-0 z-50 duration-300">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-wrap">
             <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">

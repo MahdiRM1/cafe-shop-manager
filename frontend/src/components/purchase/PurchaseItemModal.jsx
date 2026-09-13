@@ -46,7 +46,7 @@ export default function PurchaseItemModal({
   return (
     <div
       dir="rtl"
-      className="fixed inset-0 bg-black/40 flex items-center justify-center px-4 z-50"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center px-4 z-50 animate-fade-in-up"
       onClick={onClose}
     >
       <form

@@ -84,7 +84,7 @@ public class ReportServices {
         List<DailyReportDto> orders = new ArrayList<>();
         List<List<Purchase>> purchases = new ArrayList<>();
 
-        for (LocalDate date = from; date.isBefore(to); date = date.plusDays(1)) {
+        for (LocalDate date = from; date.isBefore(to) || date.isEqual(to); date = date.plusDays(1)) {
             orders.add(daily(date));
             LocalDateTime forFrom = date.atStartOfDay();
             LocalDateTime forTo = date.plusDays(1).atStartOfDay();
