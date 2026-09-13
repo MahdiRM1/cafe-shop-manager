@@ -125,17 +125,6 @@ npm install
 npm run build   # builds the Windows installer (.exe)
 ```
 
-## 🔒 Security Notes
-
-- Never commit real database credentials or JWT secrets. Use environment variables in production.
-- The `.exe` release is currently unsigned; Windows SmartScreen may flag it as coming from an "Unknown Publisher."
-
-## 🗺 Roadmap (out of current scope)
-
-- Receipt printer / cash drawer hardware integration
-- Multi-branch / cloud sync support
-- Customer-facing online ordering channel
-
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
