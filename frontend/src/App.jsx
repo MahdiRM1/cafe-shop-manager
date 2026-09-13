@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import UpdatePassword from './pages/UpdatePassword';
 import MenuPage from './pages/MenuPage';
@@ -15,7 +15,7 @@ import ReportPage from './pages/ReportPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/auth/login" element={<LoginPage />} />
         
@@ -45,6 +45,6 @@ export default function App() {
           </Route>
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
