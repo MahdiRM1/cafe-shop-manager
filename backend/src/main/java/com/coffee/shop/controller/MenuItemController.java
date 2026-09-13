@@ -29,6 +29,12 @@ public class MenuItemController {
         return ResponseEntity.ok(menuItemServices.getByCategoryId(categoryId));
     }
 
+    @PostMapping
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public ResponseEntity<MenuItemResponseDto> create(@RequestBody @Valid MenuItemRequestDto dto) {
+        return ResponseEntity.ok(menuItemServices.create(dto));
+    }
+
     @GetMapping("/available")
     public ResponseEntity<List<MenuItemResponseDto>> getAvailable(
             @RequestParam(required = false) Long categoryId) {
@@ -39,12 +45,6 @@ public class MenuItemController {
     @GetMapping("/{id}")
     public ResponseEntity<MenuItemResponseDto> getById(@PathVariable Long id){
         return ResponseEntity.ok(menuItemServices.getById(id));
-    }
-
-    @PostMapping
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public ResponseEntity<MenuItemResponseDto> create(@RequestBody @Valid MenuItemRequestDto dto) {
-        return ResponseEntity.ok(menuItemServices.create(dto));
     }
 
     @PutMapping("/{id}")

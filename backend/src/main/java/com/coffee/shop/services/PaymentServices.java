@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -58,17 +59,12 @@ public class PaymentServices {
         Payment saved = paymentRepository.save(payment);
         return toResponseDto(saved);
     }
-    public PaymentResponseDto createForPurchase(Long userId, Long purchaseId, PaymentRequestDto dto) {
+    public PaymentResponseDto createForPurchase(Long purchaseId, PaymentRequestDto dto) {
         Purchase purchase = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.PURCHASE_NOT_FOUND));
-        System.out.println(1);
 
         if (purchase.getStatus() != OrderStatus.OPEN)
             throw new BusinessRuleException(ErrorCode.PURCHASE_NOT_OPEN);
-
-        Shift shift = shiftRepository.findByUserIdAndStatus(userId, ShiftStatus.OPEN)
-                .orElseThrow(() -> new BusinessRuleException(ErrorCode.NO_OPEN_SHIFT));
-        System.out.println(2);
 
         BigDecimal alreadyPaid = paymentRepository.findByPurchaseId(purchaseId)
                 .stream().map(Payment::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -76,15 +72,13 @@ public class PaymentServices {
         BigDecimal remain = payable.subtract(alreadyPaid);
         if (remain.subtract(dto.getAmount()).compareTo(BigDecimal.ZERO) < 0)
             throw new BusinessRuleException(ErrorCode.PAYMENT_EXCEEDS_REMAINING);
-        System.out.println(3);
 
         Payment payment = new Payment();
         payment.setOrder(null);
         payment.setPurchase(purchase);
         payment.setAmount(dto.getAmount());
         payment.setMethod(dto.getMethod());
-        payment.setShift(shift);
-        System.out.println(4);
+        payment.setShift(null);
 
         Payment saved = paymentRepository.save(payment);
         return toResponseDto(saved);
@@ -96,6 +90,16 @@ public class PaymentServices {
         return toResponseDto(payment);
     }
 
+    public List<PaymentResponseDto> getByPurchaseId(Long purchaseId){
+        List<Payment> payments = paymentRepository.findByPurchaseId(purchaseId);
+        return payments.stream().map(this::toResponseDto).toList();
+    }
+
+    public List<PaymentResponseDto> getByOrderId(Long orderId){
+        List<Payment> payments = paymentRepository.findByOrderId(orderId);
+        return payments.stream().map(this::toResponseDto).toList();
+    }
+
     private PaymentResponseDto toResponseDto(Payment payment){
         return new PaymentResponseDto(
                 payment.getId(),
@@ -104,7 +108,7 @@ public class PaymentServices {
                 payment.getAmount(),
                 payment.getMethod(),
                 payment.getPaidAt(),
-                payment.getShift().getId()
+                payment.getShift() != null ? payment.getShift().getId() : null
         );
     }
     

@@ -12,6 +12,7 @@ import com.coffee.shop.repository.RawMaterialRepository;
 import com.coffee.shop.repository.RecipeItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class RecipeItemServices {
     private final MenuItemRepository menuItemRepository;
     private final RawMaterialRepository rawMaterialRepository;
 
+    @Transactional
     public List<RecipeItemResponseDto> updateRecipe(Long menuItemId, List<RecipeItemRequestDto> items) {
         MenuItem item = menuItemRepository.findById(menuItemId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.MENU_ITEM_NOT_FOUND));
@@ -58,6 +60,7 @@ public class RecipeItemServices {
                 recipeItem.getMenuItem().getName(),
                 recipeItem.getRawMaterial().getId(),
                 recipeItem.getRawMaterial().getName(),
+                recipeItem.getRawMaterial().getUnit(),
                 recipeItem.getQuantityNeeded()
         );
     }

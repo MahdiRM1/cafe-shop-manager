@@ -19,7 +19,6 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-
     @GetMapping("")
     public ResponseEntity<List<CategoryResponseDto>> getAll() {
         return ResponseEntity.ok(categoryService.getAll());
@@ -28,7 +27,6 @@ public class CategoryController {
     @PostMapping("")
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<CategoryResponseDto> create(@RequestBody @Valid CategoryRequestDto dto){
-        System.out.println(dto.getName() + " " + dto.getDisplayOrder());
         return ResponseEntity.ok(categoryService.create(dto));
     }
 

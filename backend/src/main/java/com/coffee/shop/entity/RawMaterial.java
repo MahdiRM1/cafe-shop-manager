@@ -25,7 +25,4 @@ public class RawMaterial {
 
     @Column(name = "min_stock_alert", nullable = false, precision = 12, scale = 2)
     private BigDecimal minStockAlert;
-
-    @Column(name = "cost_per_unit", nullable = false, precision = 12, scale = 2)
-    private BigDecimal unitCost;
 }

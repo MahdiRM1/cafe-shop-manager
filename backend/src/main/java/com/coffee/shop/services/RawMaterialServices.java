@@ -28,7 +28,6 @@ public class RawMaterialServices {
         material.setName(dto.getName());
         material.setUnit(dto.getUnit());
         material.setMinStockAlert(dto.getMinStockAlert());
-        material.setUnitCost(dto.getUnitCost());
 
         RawMaterial saved = repository.save(material);
         return toResponseDto(saved);
@@ -54,7 +53,6 @@ public class RawMaterialServices {
         material.setName(dto.getName());
         material.setUnit(dto.getUnit());
         material.setMinStockAlert(dto.getMinStockAlert());
-        material.setUnitCost(dto.getUnitCost());
 
         RawMaterial updated = repository.save(material);
         return toResponseDto(updated);
@@ -72,8 +70,7 @@ public class RawMaterialServices {
                 material.getName(),
                 material.getUnit(),
                 material.getCurrentStock(),
-                material.getMinStockAlert(),
-                material.getUnitCost()
+                material.getMinStockAlert()
         );
     }
 }

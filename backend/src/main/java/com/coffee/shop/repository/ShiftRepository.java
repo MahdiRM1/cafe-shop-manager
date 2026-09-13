@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface ShiftRepository extends JpaRepository<Shift, Long> {
     List<Shift> findByUserId(Long userId);
-    Optional<Shift> findByUserIdAndStatus(Long user_id, ShiftStatus status);
+    Optional<Shift> findByUserIdAndStatus(Long userId, ShiftStatus status);
 }

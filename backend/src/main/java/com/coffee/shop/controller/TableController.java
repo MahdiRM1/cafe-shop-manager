@@ -26,6 +26,12 @@ public class TableController {
         return ResponseEntity.ok(tableServices.getAll());
     }
 
+    @GetMapping("/{tableId}")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
+    public ResponseEntity<RestaurantTableResponseDto> getById(@PathVariable Long tableId) {
+        return ResponseEntity.ok(tableServices.getById(tableId));
+    }
+
     @PostMapping("")
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<RestaurantTableResponseDto> create(@RequestBody @Valid RestaurantTableRequestDto dto){

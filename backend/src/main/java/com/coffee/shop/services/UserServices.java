@@ -81,21 +81,11 @@ public class UserServices {
         return toResponseDto(updated);
     }
 
-    public UserResponseDto deactivate(Long id) {
+    public UserResponseDto toggleActivate(Long id) {
         User user = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        user.setActive(false);
-
-        User updated = repository.save(user);
-        return toResponseDto(updated);
-    }
-
-    public UserResponseDto activate(Long id) {
-        User user = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND));
-
-        user.setActive(true);
+        user.setActive(user.isActive() ? false : true);
 
         User updated = repository.save(user);
         return toResponseDto(updated);

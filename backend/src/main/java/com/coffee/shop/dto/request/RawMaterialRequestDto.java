@@ -25,8 +25,4 @@ public class RawMaterialRequestDto {
 
     @PositiveOrZero(message = "آستانه هشدار نمی‌تواند منفی باشد")
     private BigDecimal minStockAlert;
-
-    @NotNull(message = "بهای هر واحد نمی‌تواند خالی باشد")
-    @PositiveOrZero(message = "بهای هر واحد نمی‌تواند منفی باشد")
-    private BigDecimal unitCost;
 }

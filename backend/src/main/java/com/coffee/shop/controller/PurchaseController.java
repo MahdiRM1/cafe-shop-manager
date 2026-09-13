@@ -27,64 +27,74 @@ public class PurchaseController {
     private final PaymentServices paymentServices;
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
     public ResponseEntity<List<PurchaseResponseDto>> getAll
-            (@PathVariable(required = false) OrderStatus status){
+            (@RequestParam(required = false) OrderStatus status){
         if (status == null) return ResponseEntity.ok(purchaseServices.getAll());
         return ResponseEntity.ok(purchaseServices.getAll(status));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
     public ResponseEntity<PurchaseResponseDto> create
             (@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(purchaseServices.create(user.getId()));
     }
 
     @GetMapping("/{purchaseId}/items")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER', 'BARISTA')")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
     public ResponseEntity<List<PurchaseItemResponseDto>> addItem
             (@PathVariable Long purchaseId) {
         return ResponseEntity.ok(purchaseServices.getItems(purchaseId));
     }
 
     @PostMapping("/{purchaseId}/items")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
     public ResponseEntity<PurchaseItemResponseDto> addItem
             (@PathVariable Long purchaseId, @RequestBody @Valid PurchaseItemRequestDto dto) {
         return ResponseEntity.ok(purchaseServices.addItem(purchaseId, dto));
     }
 
     @PatchMapping("/{purchaseId}/items/{itemId}")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
     public ResponseEntity<PurchaseItemResponseDto> updateItem
-            (@PathVariable Long itemId, @RequestBody @Valid PurchaseItemUpdateQuantityRequestDto dto) {
-        return ResponseEntity.ok(purchaseServices.updateItemQuantity(itemId, dto));
+            (@PathVariable Long purchaseId, @PathVariable Long itemId, @RequestBody @Valid PurchaseItemUpdateQuantityRequestDto dto) {
+        return ResponseEntity.ok(purchaseServices.updateItemQuantity(purchaseId, itemId, dto));
     }
 
     @DeleteMapping("/{purchaseId}/items/{itemId}")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
     public ResponseEntity<String> removeItem
-            (@PathVariable Long itemId) {
-        return ResponseEntity.ok(purchaseServices.removeItem(itemId));
+            (@PathVariable Long purchaseId, @PathVariable Long itemId) {
+        return ResponseEntity.ok(purchaseServices.removeItem(purchaseId, itemId));
     }
 
     @PostMapping("/{purchaseId}/checkout")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
     public ResponseEntity<PurchaseResponseDto> checkout
             (@PathVariable Long purchaseId) {
         return ResponseEntity.ok(purchaseServices.checkout(purchaseId));
     }
 
     @PatchMapping("/{purchaseId}/cancel")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
     public ResponseEntity<PurchaseResponseDto> cancel
             (@PathVariable Long purchaseId) {
         return ResponseEntity.ok(purchaseServices.cancel(purchaseId));
     }
 
-    @PostMapping("/{purchaseId}/payment")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
+    @PostMapping("/{purchaseId}/payments")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
     public ResponseEntity<PaymentResponseDto> createPayment
             (@AuthenticationPrincipal User user, @PathVariable Long purchaseId, @RequestBody @Valid PaymentRequestDto dto) {
-        return ResponseEntity.ok(paymentServices.createForPurchase(user.getId(), purchaseId, dto));
+        return ResponseEntity.ok(paymentServices.createForPurchase(purchaseId, dto));
+    }
+
+    @GetMapping("/{purchaseId}/payments")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
+    public ResponseEntity<List<PaymentResponseDto>> getPayments
+            (@PathVariable Long purchaseId) {
+        return ResponseEntity.ok(paymentServices.getByPurchaseId(purchaseId));
     }
 
 }

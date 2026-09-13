@@ -113,16 +113,13 @@ public class InventoryServices {
         rawMaterial.setCurrentStock(newStock);
         materialRepository.save(rawMaterial);
 
-        BigDecimal totalCost = rawMaterial.getUnitCost().multiply(quantity);
-
         InventoryTransaction transaction = new InventoryTransaction();
         transaction.setRawMaterial(recipeItem.getRawMaterial());
         transaction.setChangeAmount(quantity.negate());
         transaction.setType(InventoryTransactionType.SALE_DEDUCTION);
         transaction.setReason("برای سفارش محصول " + recipeItem.getRawMaterial().getName() +
-                "به تعداد " + quantity +
-                "با قیمت هر واحد " + rawMaterial.getUnitCost() +
-                "\n مجموع قیمت: " + totalCost);
+                "به تعداد " + quantity
+        );
         transaction.setRelatedOrder(order);
         itRepository.save(transaction);
     }

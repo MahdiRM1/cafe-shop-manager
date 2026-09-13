@@ -31,8 +31,9 @@ public class ReportServices {
     private final PaymentRepository paymentRepository;
 
     public DailyReportDto daily(LocalDate date){
-        List<Order> orders = orderRepository.findByClosedAt_Date(date).stream()
-                .filter(order -> order.getStatus() == OrderStatus.CLOSED).toList();
+        LocalDateTime from = date.atStartOfDay();
+        LocalDateTime to = date.plusDays(1).atStartOfDay();
+        List<Order> orders = orderRepository.findByStatusAndClosedAtBetween(OrderStatus.CLOSED, from, to);
         BigDecimal prices = orders.stream().map(Order::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal discounts = orders.stream().map(Order::getDiscount).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal received = prices.subtract(discounts);
@@ -55,11 +56,28 @@ public class ReportServices {
     }
 
     public TimeRangeSalesResponseDto rangeSalesReport(LocalDateTime from, LocalDateTime to){
-        List<Order> orders = orderRepository.findByClosedAtBetween(from, to);
-        List<Long> orderIds = orders.stream().map(Order::getId).toList();
+        List<Order> orders = orderRepository.findByStatusAndClosedAtBetween(OrderStatus.CLOSED, from, to);
+
+        // قبلاً فقط شناسه‌ی سفارش‌ها برگردانده می‌شد؛ حالا مثل daily() یک خلاصه‌ی
+        // کامل (مبلغ، وضعیت، نوع سفارش، میز و ...) برای هر سفارش ساخته می‌شود
+        // تا فرانت بتواند به‌جای نمایش صرف id، کارت خلاصه نمایش دهد.
+        List<OrderResponseDto> ordersDto = orders.stream().map(order ->
+                new OrderResponseDto(
+                        order.getId(),
+                        order.getTable() != null ? order.getTable().getId() : null,
+                        order.getTable() != null ? order.getTable().getTableNumber() : null,
+                        order.getUser().getId(),
+                        order.getUser().getFullName(),
+                        order.getType(),
+                        order.getStatus(),
+                        order.getAmount(),
+                        order.getDiscount(),
+                        order.getCreatedAt(),
+                        order.getClosedAt())
+        ).toList();
 
         BigDecimal totalAmount = orders.stream().map(Order::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        return new TimeRangeSalesResponseDto(orders.size(), orderIds, totalAmount);
+        return new TimeRangeSalesResponseDto(orders.size(), ordersDto, totalAmount);
     }
 
     public TimeRangeProfitDto rangeProfit(LocalDate from, LocalDate to){
@@ -68,7 +86,9 @@ public class ReportServices {
 
         for (LocalDate date = from; date.isBefore(to); date = date.plusDays(1)) {
             orders.add(daily(date));
-            purchases.add(purchaseRepository.findByClosedAt_Date(date));
+            LocalDateTime forFrom = date.atStartOfDay();
+            LocalDateTime forTo = date.plusDays(1).atStartOfDay();
+            purchases.add(purchaseRepository.findByClosedAtBetween(forFrom, forTo));
         }
 
         List<Integer> orderCountByDay = orders.stream().map(DailyReportDto::getOrderCount).toList();
@@ -88,7 +108,7 @@ public class ReportServices {
         List<Object[]> rows = orderItemRepository.findTopSellingItems(from, to);
 
         return rows.stream().map(row ->
-                new TopSellingItemDto((Long) row[0], (String) row[1], (Long) row[2], (BigDecimal) row[3])
+                new TopSellingItemDto((Long) row[0], (String) row[1], (BigDecimal) row[2], (BigDecimal) row[3])
         ).toList();
     }
 

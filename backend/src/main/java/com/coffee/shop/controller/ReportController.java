@@ -28,7 +28,9 @@ public class ReportController {
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<DailyReportDto> dailyReport
             (@RequestParam(required = false)LocalDate date){
-        if (date == null) ResponseEntity.ok(reportServices.daily(LocalDate.now()));
+        if (date == null)
+            ResponseEntity.ok(reportServices.daily(LocalDate.now()));
+
         return ResponseEntity.ok(reportServices.daily(date));
     }
 

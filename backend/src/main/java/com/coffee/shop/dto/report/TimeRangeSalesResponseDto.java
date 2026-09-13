@@ -1,5 +1,6 @@
 package com.coffee.shop.dto.report;
 
+import com.coffee.shop.dto.response.OrderResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class TimeRangeSalesResponseDto {
     private Integer totalOrderCount;
-    private List<Long> orders;
+    private List<OrderResponseDto> orders;
     private BigDecimal saleAmount;
 }

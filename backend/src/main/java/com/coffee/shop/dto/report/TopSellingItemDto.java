@@ -12,6 +12,6 @@ import java.math.BigDecimal;
 public class TopSellingItemDto {
     private Long menuItemId;
     private String menuItemName;
-    private Long totalQuantitySold;
+    private BigDecimal totalQuantitySold;
     private BigDecimal totalRevenue;
 }

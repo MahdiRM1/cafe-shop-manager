@@ -25,6 +25,7 @@ public enum ErrorCode {
     SHIFT_ALREADY_OPEN(2002, "شیفت باز دیگری برای این کاربر وجود دارد", HttpStatus.CONFLICT),
     ACCOUNT_ALREADY_ACTIVE(2003, "اکانت در حال حاضر فعال است", HttpStatus.CONFLICT),
     ACCOUNT_ALREADY_DEACTIVE(2004, "اکانت در حال حاضر غیرفعال است", HttpStatus.CONFLICT),
+    TABLE_ALREADY_OCCUPIED(2005, "میز در حال حاضر اشغال است", HttpStatus.CONFLICT),
 
     INSUFFICIENT_STOCK(3001, "موجودی ماده اولیه کافی نیست", HttpStatus.BAD_REQUEST),
     INVALID_ORDER_STATUS(3002, "وضعیت سفارش نامعتبر است", HttpStatus.BAD_REQUEST),

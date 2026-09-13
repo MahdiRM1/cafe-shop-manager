@@ -15,5 +15,6 @@ public class RecipeItemResponseDto {
     private String menuItemName;
     private Long rawMaterialId;
     private String rawMaterialName;
+    private String rawMaterialUnit;
     private BigDecimal quantityNeeded;
 }

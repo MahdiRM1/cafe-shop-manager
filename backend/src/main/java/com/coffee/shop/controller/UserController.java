@@ -41,38 +41,30 @@ public class UserController {
         return ResponseEntity.ok(userServices.getById(id));
     }
 
-    @PutMapping("/update-information")
+    @PatchMapping("{userId}/update-information")
     public ResponseEntity<UserResponseDto> updateInformation
-            (@AuthenticationPrincipal User user, @RequestBody @Valid UserUpdateInformationRequestDto dto) {
-        System.out.println("test");
-        return ResponseEntity.ok(userServices.updateInformation(user.getId(), dto));
+            (@PathVariable Long userId, @RequestBody @Valid UserUpdateInformationRequestDto dto) {
+        return ResponseEntity.ok(userServices.updateInformation(userId, dto));
     }
 
-    @PutMapping("/update-password")
+    @PatchMapping("/update-password")
     public ResponseEntity<UserResponseDto> updatePassword
             (@AuthenticationPrincipal User user, @RequestBody @Valid UserUpdatePasswordRequestDto dto) {
         return ResponseEntity.ok(userServices.updatePassword(user.getId(), dto));
     }
 
-    @PutMapping("/{id}/manager-update-password")
+    @PatchMapping("/{id}/manager-update-password")
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<UserResponseDto> managerUpdatePassword
             (@PathVariable Long id, @RequestBody @Valid UserManagerUpdatePasswordDto dto) {
         return ResponseEntity.ok(userServices.managerUpdatePassword(id, dto));
     }
 
-    @PatchMapping("/{id}/deactivate")
+    @PatchMapping("/{id}/toggle-status")
     @PreAuthorize("hasAuthority('MANAGER')")
-    public ResponseEntity<UserResponseDto> deactivate(@PathVariable Long id) {
-        return ResponseEntity.ok(userServices.deactivate(id));
+    public ResponseEntity<UserResponseDto> toggleActivate(@PathVariable Long id) {
+        return ResponseEntity.ok(userServices.toggleActivate(id));
     }
-
-    @PatchMapping("/{id}/activate")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public ResponseEntity<UserResponseDto> activate(@PathVariable Long id) {
-        return ResponseEntity.ok(userServices.activate(id));
-    }
-
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<String> delete(@PathVariable Long id){

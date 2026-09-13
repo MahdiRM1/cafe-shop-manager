@@ -6,6 +6,7 @@ import com.coffee.shop.dto.response.ShiftResponseDto;
 import com.coffee.shop.entity.Payment;
 import com.coffee.shop.entity.Shift;
 import com.coffee.shop.entity.User;
+import com.coffee.shop.enums.PaymentMethod;
 import com.coffee.shop.enums.ShiftStatus;
 import com.coffee.shop.exception.DuplicateResourceException;
 import com.coffee.shop.exception.ErrorCode;
@@ -66,7 +67,10 @@ public class ShiftServices {
 
     public BigDecimal calculateExpectedCash(Shift shift) {
         List<Payment> payments = paymentRepository.findByShiftId(shift.getId());
-        BigDecimal totalCashPayments = payments.stream().map(Payment::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalCashPayments = payments.stream()
+                .filter(p -> p.getMethod() == PaymentMethod.CASH)
+                .map(Payment::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        System.out.println(totalCashPayments + "\n\n\n\n");
         return shift.getOpeningCash().add(totalCashPayments);
     }
 

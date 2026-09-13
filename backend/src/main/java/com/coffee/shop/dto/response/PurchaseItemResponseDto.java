@@ -14,6 +14,7 @@ public class PurchaseItemResponseDto {
     private Long purchaseId;
     private Long materialId;
     private String materialName;
+    private String materialUnit;
     private BigDecimal quantity;
     private BigDecimal unitPrice;
     private String note;

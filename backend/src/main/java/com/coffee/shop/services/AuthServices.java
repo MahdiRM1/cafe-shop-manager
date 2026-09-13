@@ -33,7 +33,6 @@ public class AuthServices {
         user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
         user.setUsername(dto.getUsername());
         user.setRole(UserRole.CASHIER);
-        // TODO: email and phone
 
         User saved = userRepository.save(user);
         String token = jwtUtil.generateToken(saved.getId(), saved.getUsername(), saved.getRole());

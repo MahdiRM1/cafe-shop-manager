@@ -15,5 +15,4 @@ public class RawMaterialResponseDto {
     private String unit;
     private BigDecimal currentStock;
     private BigDecimal minStockAlert;
-    private BigDecimal unitCost;
 }

@@ -6,7 +6,9 @@ import com.coffee.shop.dto.response.OrderResponseDto;
 import com.coffee.shop.entity.*;
 import com.coffee.shop.enums.OrderStatus;
 import com.coffee.shop.enums.OrderType;
+import com.coffee.shop.enums.TableStatus;
 import com.coffee.shop.exception.BusinessRuleException;
+import com.coffee.shop.exception.DuplicateResourceException;
 import com.coffee.shop.exception.ErrorCode;
 import com.coffee.shop.exception.ResourceNotFoundException;
 import com.coffee.shop.repository.*;
@@ -50,6 +52,8 @@ public class OrderServices {
             table = tableRepository.findById(dto.getTableId())
                     .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.TABLE_NOT_FOUND));
 
+        if (table != null && table.getStatus() != TableStatus.EMPTY)
+            throw new DuplicateResourceException(ErrorCode.TABLE_ALREADY_OCCUPIED);
 
         Order order = new Order();
         order.setUser(user);
@@ -114,6 +118,9 @@ public class OrderServices {
         order.setClosedAt(LocalDateTime.now());
         Order saved = orderRepository.save(order);
 
+        if (order.getType() == OrderType.DINE_IN)
+            order.getTable().setStatus(TableStatus.OCCUPIED);
+
         return toResponseDto(saved);
     }
 
@@ -159,10 +166,10 @@ public class OrderServices {
         return itemToResponseDto(saved);
     }
 
-    public OrderItemResponseDto updateItemQuantity(Long itemId, OrderItemUpdateQuantityRequestDto dto) {
+    public OrderItemResponseDto updateItemQuantity(Long orderId, Long itemId, OrderItemUpdateQuantityRequestDto dto) {
         OrderItem orderItem = orderItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORDER_ITEM_NOT_FOUND));
-        Order order = orderRepository.findById(orderItem.getOrder().getId())
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORDER_NOT_FOUND));
         if (order.getStatus() != OrderStatus.OPEN)
             throw new BusinessRuleException(ErrorCode.ORDER_NOT_OPEN);
@@ -174,10 +181,10 @@ public class OrderServices {
     }
 
     @Transactional
-    public OrderItemResponseDto updateItemStatus(Long itemId, OrderItemStatusUpdateRequestDto dto) {
+    public OrderItemResponseDto updateItemStatus(Long orderId, Long itemId, OrderItemStatusUpdateRequestDto dto) {
         OrderItem orderItem = orderItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORDER_ITEM_NOT_FOUND));
-        Order order = orderRepository.findById(orderItem.getOrder().getId())
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORDER_NOT_FOUND));
         if (order.getStatus() != OrderStatus.OPEN)
             throw new BusinessRuleException(ErrorCode.ORDER_NOT_OPEN);
@@ -189,10 +196,10 @@ public class OrderServices {
     }
 
     @Transactional
-    public String removeItem(Long itemId) {
+    public String removeItem(Long orderId, Long itemId) {
         OrderItem orderItem = orderItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORDER_ITEM_NOT_FOUND));
-        Order order = orderRepository.findById(orderItem.getOrder().getId())
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORDER_NOT_FOUND));
         if (order.getStatus() != OrderStatus.OPEN)
             throw new BusinessRuleException(ErrorCode.ORDER_NOT_OPEN);

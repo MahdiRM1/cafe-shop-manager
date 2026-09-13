@@ -22,7 +22,7 @@ public class MenuItem {
     @Column(name = "is_available")
     private boolean available = true;
 
-    @Column(name = "image_path", length = 255)
+    @Column(name = "image_path", columnDefinition = "TEXT")
     private String imagePath;
 
     @Column(name = "description", columnDefinition = "TEXT")

@@ -78,17 +78,18 @@ public class MenuItemServices {
         return "menu item deleting successfully";
     }
 
-    private boolean calculateAvailability(MenuItem menuItem) {
+    private String calculateAvailability(MenuItem menuItem) {
         List<RecipeItem> recipeItems =
                 recipeItemRepository.findByMenuItemId(menuItem.getId());
 
-        if(recipeItems.isEmpty()) return false;
+        if(recipeItems.isEmpty()) return "رسپی ای وجود ندارد.";
 
-        return recipeItems.stream().allMatch(
-                recipeItem ->
-                        recipeItem.getRawMaterial().getCurrentStock()
-                                .compareTo(recipeItem.getQuantityNeeded()) >= 0
-        );
+        for(RecipeItem recipeItem: recipeItems) {
+            if (recipeItem.getRawMaterial().getCurrentStock()
+                    .compareTo(recipeItem.getQuantityNeeded()) < 0)
+                return ("آیتم "+recipeItem.getRawMaterial().getName()+" موجودی کافی ندارد.");
+        }
+        return null;
     }
 
     private void toObj(MenuItemRequestDto dto, MenuItem menuItem, Category category) {
@@ -100,15 +101,17 @@ public class MenuItemServices {
     }
 
     private MenuItemResponseDto toResponseDto(MenuItem menuItem) {
+        String unavailableReason = calculateAvailability(menuItem);
         return new MenuItemResponseDto(
                 menuItem.getId(),
                 menuItem.getName(),
                 menuItem.getPrice(),
-                calculateAvailability(menuItem),
+                unavailableReason == null,
                 menuItem.getImagePath(),
                 menuItem.getDescription(),
                 menuItem.getCategory().getId(),
-                menuItem.getCategory().getName()
+                menuItem.getCategory().getName(),
+                unavailableReason
         );
     }
 

@@ -44,12 +44,6 @@ public class OrderController {
         return ResponseEntity.ok(orderServices.create(user.getId(), dto));
     }
 
-    @GetMapping("/kitchen-queue")
-    @PreAuthorize("hasAuthority('BARISTA')")
-    public ResponseEntity<List<OrderResponseDto>> kitchenQueue() {
-        return ResponseEntity.ok(orderServices.getByStatus(OrderStatus.CLOSED));
-    }
-
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER', 'BARISTA')")
     public ResponseEntity<OrderResponseDto> getById(@PathVariable Long id) {
@@ -73,22 +67,15 @@ public class OrderController {
     @PatchMapping("/{orderId}/items/{itemId}")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER', 'BARISTA')")
     public ResponseEntity<OrderItemResponseDto> updateItem
-            (@PathVariable Long itemId, @RequestBody @Valid OrderItemUpdateQuantityRequestDto dto) {
-        return ResponseEntity.ok(orderServices.updateItemQuantity(itemId, dto));
-    }
-
-    @PatchMapping("/{orderId}/items/{itemId}/status")
-    @PreAuthorize("hasAnyAuthority('BARISTA')")
-    public ResponseEntity<OrderItemResponseDto> updateStatusItem
-            (@PathVariable Long itemId, @RequestBody @Valid OrderItemStatusUpdateRequestDto dto) {
-        return ResponseEntity.ok(orderServices.updateItemStatus(itemId, dto));
+            (@PathVariable Long orderId, @PathVariable Long itemId, @RequestBody @Valid OrderItemUpdateQuantityRequestDto dto) {
+        return ResponseEntity.ok(orderServices.updateItemQuantity(orderId, itemId, dto));
     }
 
     @DeleteMapping("/{orderId}/items/{itemId}")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER', 'BARISTA')")
     public ResponseEntity<String> removeItem
-            (@PathVariable Long itemId) {
-        return ResponseEntity.ok(orderServices.removeItem(itemId));
+            (@PathVariable Long orderId, @PathVariable Long itemId) {
+        return ResponseEntity.ok(orderServices.removeItem(orderId, itemId));
     }
 
     @PostMapping("/{orderId}/discount")
@@ -112,11 +99,18 @@ public class OrderController {
         return ResponseEntity.ok(orderServices.cancel(orderId));
     }
 
-    @PostMapping("/{orderId}/payment")
+    @PostMapping("/{orderId}/payments")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
     public ResponseEntity<PaymentResponseDto> createPayment
             (@AuthenticationPrincipal User user, @PathVariable Long orderId, @RequestBody @Valid PaymentRequestDto dto) {
         return ResponseEntity.ok(paymentServices.createForOrder(user.getId(), orderId, dto));
+    }
+
+    @GetMapping("/{orderId}/payments")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'CASHIER')")
+    public ResponseEntity<List<PaymentResponseDto>> getPayments
+            (@PathVariable Long orderId) {
+        return ResponseEntity.ok(paymentServices.getByOrderId(orderId));
     }
 
 }

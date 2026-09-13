@@ -2,7 +2,6 @@ package com.coffee.shop.services;
 
 import com.coffee.shop.dto.request.PurchaseItemRequestDto;
 import com.coffee.shop.dto.request.PurchaseItemUpdateQuantityRequestDto;
-import com.coffee.shop.dto.request.PurchaseRequestDto;
 import com.coffee.shop.dto.response.PurchaseItemResponseDto;
 import com.coffee.shop.dto.response.PurchaseResponseDto;
 import com.coffee.shop.entity.*;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +33,11 @@ public class PurchaseServices {
     public PurchaseResponseDto create(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        Optional<Purchase> existingPurchase = purchaseRepository.findByUserAndStatus(user, OrderStatus.OPEN);
+
+        if (existingPurchase.isPresent())
+            return toResponseDto(existingPurchase.get());
 
         Purchase purchase = new Purchase();
         purchase.setUser(user);
@@ -133,10 +138,10 @@ public class PurchaseServices {
         return itemToResponseDto(saved);
     }
 
-    public PurchaseItemResponseDto updateItemQuantity(Long itemId, PurchaseItemUpdateQuantityRequestDto dto) {
+    public PurchaseItemResponseDto updateItemQuantity(Long purchaseId, Long itemId, PurchaseItemUpdateQuantityRequestDto dto) {
         PurchaseItem purchaseItem = purchaseItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.PURCHASE_ITEM_NOT_FOUND));
-        Purchase purchase = purchaseRepository.findById(purchaseItem.getPurchase().getId())
+        Purchase purchase = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.PURCHASE_NOT_FOUND));
         if (purchase.getStatus() != OrderStatus.OPEN)
             throw new BusinessRuleException(ErrorCode.ORDER_NOT_OPEN);
@@ -148,10 +153,10 @@ public class PurchaseServices {
     }
 
     @Transactional
-    public String removeItem(Long itemId) {
+    public String removeItem(Long purchaseId, Long itemId) {
         PurchaseItem purchaseItem = purchaseItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.PURCHASE_ITEM_NOT_FOUND));
-        Purchase purchase = purchaseRepository.findById(purchaseItem.getPurchase().getId())
+        Purchase purchase = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.PURCHASE_NOT_FOUND));
         if (purchase.getStatus() != OrderStatus.OPEN)
             throw new BusinessRuleException(ErrorCode.PURCHASE_NOT_OPEN);
@@ -185,6 +190,7 @@ public class PurchaseServices {
                 purchaseItem.getPurchase().getId(),
                 purchaseItem.getMaterial().getId(),
                 purchaseItem.getMaterial().getName(),
+                purchaseItem.getMaterial().getUnit(),
                 purchaseItem.getQuantity(),
                 purchaseItem.getUnitPrice(),
                 purchaseItem.getNote()

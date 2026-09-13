@@ -18,4 +18,5 @@ public class MenuItemResponseDto {
     private String description;
     private Long categoryId;
     private String categoryName;
+    private String unavailableReason;
 }

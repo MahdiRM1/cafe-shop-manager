@@ -32,7 +32,7 @@ public class Payment {
     private PaymentMethod method;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shift_id", nullable = false)
+    @JoinColumn(name = "shift_id")
     private Shift shift;
 
     @Column(name = "paid_at", nullable = false, updatable = false)
