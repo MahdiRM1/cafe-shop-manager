@@ -63,3 +63,6 @@ logs/
 # ===== Debug (removed before delivery) =====
 **/Test.java
 **/debug/
+
+
+descktop/
