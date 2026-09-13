@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import FormField from "../components/ui/FormField";
 import { getCurrentUser } from "../services/authService";
+import PasswordField from "../components/ui/PasswordField";
 
 export default function UpdatePassword() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -57,8 +57,8 @@ export default function UpdatePassword() {
             </div>
           )}
 
-          <FormField label="رمزعبور پیشین" type="password" value={currentPassword} onChange={setCurrentPassword} required/>
-          <FormField label="رمزعبور جدید" type="password" value={newPassword} onChange={setNewPassword} required/>
+          <PasswordField label="رمزعبور پیشین" value={currentPassword} onChange={setCurrentPassword} required/>
+          <PasswordField label="رمزعبور جدید" value={newPassword} onChange={setNewPassword} required/>
           
           <p className="text-center text-sm text-slate-500 mt-6">
             <a href="/auth/login" className="text-blue-600 hover:text-blue-700 font-medium">

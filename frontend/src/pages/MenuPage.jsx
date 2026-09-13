@@ -1,24 +1,30 @@
 import { useState, useEffect } from "react";
 import SelectField from "../components/ui/SelectField";
 import MenuItemModal from "../components/menu/MenuItemModal";
-import ThemeToggle from "../components/ui/ThemeToggle";
+import CategoryModal from "../components/menu/CategoryModal";
 import {
   getMenuItems,
   getCategories,
   createMenuItem,
   updateMenuItem,
   deleteMenuItem,
+  createCategory,
+  updateCategory,
+  deleteCategory,
 } from "../services/menuService";
 
 export default function MenuPage() {
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("any");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -31,8 +37,8 @@ export default function MenuPage() {
       setItems(itemsData);
       setCategories(categoriesData);
     } catch (err) {
-      console.log(err);
-      setError("خطا در دریافت اطلاعات منو");
+      console.log(err.response ?? err);
+      setError(error.response?.data?.message || "خطا در دریافت اطلاعات منو");
     } finally {
       setLoading(false);
     }
@@ -42,18 +48,65 @@ export default function MenuPage() {
     loadData();
   }, []);
 
-  const filteredItems = categoryFilter
+  const filteredItems = categoryFilter !== "any" 
     ? items.filter((item) => item.categoryId?.toString() === categoryFilter)
     : items;
+
+  const groupedByCategory = categories
+    .slice()
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    .map((category) => ({
+      category: category,
+      items: filteredItems.filter((item) => item.categoryId === category.id),
+    }));
+
+  const filteredCategory = categoryFilter !== "any"
+  ? groupedByCategory.filter((group) => group.items.length > 0)
+  : groupedByCategory;
 
   const handleAddClick = () => {
     setEditingItem(null);
     setModalOpen(true);
   };
 
+  const handleAddCategoryClick = () => {
+    setEditingCategory(null);
+    setCategoryOpen(true);
+  };
+
   const handleEditClick = (item) => {
     setEditingItem(item);
     setModalOpen(true);
+  };
+
+  const handleEditCategoryClick = (category) => {
+    setEditingCategory(category);
+    setCategoryOpen(true);
+  };
+
+  const handleDeleteCategory = async (category, items) => {
+    const len = items.filter((item) => item.categoryId === category.id).length;
+    if (len > 0){
+      window.alert("دسته بندی دارای محصول است و نمیتوانید آن را حذف کنید.");
+      return;
+    }
+    if (!window.confirm(`دسته بندی "${category.name}" حذف بشه؟`)) return;
+    try {
+      await deleteCategory(category.id);
+      await loadData();
+    } catch (err) {
+      console.log(err.response ?? err);
+      setError(error.response?.data?.message || "خطا در حذف دسته بندی");
+    }
+  }
+
+  const handleCategoryModalSubmit = async (payload) => {
+    if (editingCategory) {
+      await updateCategory(editingCategory.id, payload);
+    } else {
+      await createCategory(payload);
+    }
+    await loadData();
   };
 
   const handleModalSubmit = async (payload) => {
@@ -71,29 +124,111 @@ export default function MenuPage() {
       await deleteMenuItem(item.id);
       await loadData();
     } catch (err) {
-      console.log(err);
-      setError("خطا در حذف آیتم");
+      console.log(err.response ?? err);
+      setError(error.response?.data?.message || "خطا در حذف آیتم");
     }
   };
 
-  const categoryName = (id) =>
-    categories.find((c) => c.id === id)?.name ?? "—";
+  const renderCard = (item, gridMode = false) => (
+    <div
+      key={item.id}
+      className={`${gridMode ? "w-full" : "w-60 shrink-0"} bg-gray-50 dark:bg-gray-800/60 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 hover:shadow-md transition-all duration-300 flex flex-col animate-fade-in-up`}
+    >
+      <div className="aspect-square w-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
+        {item.imagePath ? (
+          <img
+            src={item.imagePath}
+            alt={item.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <svg
+            width="84"
+            height="108"
+            viewBox="0 0 96.59 122.88"
+            className="text-gray-400 dark:text-gray-500 fill-current"
+          >
+            <path d="M42.65,7.68A26.83,26.83,0,0,1,46.83,0a43.57,43.57,0,0,0-1.44,10.6C45.54,17.07,48.57,20.05,53,28c6.4,11.52,3.3,22.66-5.21,31.85C50.85,49.59,52.29,43,50,35.47a34,34,0,0,0-2.74-6.22c-2.86-5.21-6-9.51-5.69-15.8a20.81,20.81,0,0,1,1.13-5.77ZM10.89,54.6a2.43,2.43,0,0,1,.54-1.06c1.57-2.46,5.24-4.54,10.36-6A73.09,73.09,0,0,1,36.34,45,26.9,26.9,0,0,1,36,49.35a65.37,65.37,0,0,0-12.66,2.24c-4.17,1.22-7,2.63-7.69,4l-.15.92c.28,1.52,3.22,3.1,7.84,4.45a82.84,82.84,0,0,0,22.28,2.68A82.89,82.89,0,0,0,67.85,61c4.63-1.35,7.58-2.94,7.85-4.46l-.09-.74c-.56-1.44-3.42-2.91-7.76-4.18a60.51,60.51,0,0,0-7.74-1.65,28,28,0,0,0,1.2-4.18,63.87,63.87,0,0,1,8,1.74c5.48,1.61,9.31,3.87,10.67,6.56a2.41,2.41,0,0,1,.33.83,4.7,4.7,0,0,1,.22,1.39c0,.12,0,.23,0,.34.18,1.71.3,3.39.38,5,5-1.58,8.79-1,11.46.93a10.42,10.42,0,0,1,4.14,7.65,17.1,17.1,0,0,1-1.86,9.27c-3.09,6.2-9.92,11.7-20.42,11.72-.37.66-.76,1.3-1.16,1.92a44.38,44.38,0,0,1,11.74,4.64c3.94,2.42,6.17,5.35,6.17,8.64,0,5-5.46,9.35-14.29,12.22-8,2.62-19.06,4.24-31.2,4.24s-23.19-1.62-31.21-4.24C5.46,115.77,0,111.46,0,106.42c0-3.29,2.23-6.22,6.17-8.64a44.62,44.62,0,0,1,12.06-4.72,53,53,0,0,1-7.1-17.67A50.69,50.69,0,0,1,10,65.22a55.22,55.22,0,0,1,.58-8.75v-.19a4.89,4.89,0,0,1,.31-1.68Zm4,7.55c0,1-.07,2-.06,3a47.1,47.1,0,0,0,1,9.22c2.76,12.66,8.86,21.3,16.2,26a25,25,0,0,0,27.63-.13c7.2-4.69,13.11-13.28,15.65-25.76a47.39,47.39,0,0,0,.88-8.81v-.35a1.22,1.22,0,0,1,0-.27c0-.91,0-1.84-.06-2.78a29.17,29.17,0,0,1-6.79,2.82A88.4,88.4,0,0,1,45.57,68a88.53,88.53,0,0,1-23.78-2.9,28.94,28.94,0,0,1-6.93-2.91ZM81,66.74A49.81,49.81,0,0,1,80,75.41a57.12,57.12,0,0,1-3.33,10.88c7-.75,11.53-4.62,13.68-8.93a12.39,12.39,0,0,0,1.38-6.66,5.7,5.7,0,0,0-2.14-4.2c-1.73-1.23-4.58-1.4-8.64.24ZM70,97.33a35.47,35.47,0,0,1-7.74,6.91,29.83,29.83,0,0,1-32.82.16,35.43,35.43,0,0,1-8.12-7.15,43.56,43.56,0,0,0-12.65,4.64c-2.46,1.51-3.85,3.06-3.85,4.53,0,2.71,4.18,5.44,11,7.64,7.56,2.47,18.07,4,29.72,4s22.15-1.52,29.71-4c6.77-2.2,11-4.93,11-7.64,0-1.47-1.39-3-3.85-4.53A42.93,42.93,0,0,0,70,97.33Zm-32-82.06c-1.06,7-.13,9.16,2.17,12.45,2.55,3.64,4.7,6.48,5.33,10.05.88,5-1.41,10.36-4.45,14.22,4.76-23.42-13.36-17.91-3.05-36.72Z" />
+          </svg>
+        )}
+      </div>
+
+      <div className="p-3 flex flex-col gap-2 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-medium text-gray-800 dark:text-gray-100 text-sm leading-snug line-clamp-2">
+            {item.name}
+          </h3>
+          <span
+            className={`shrink-0 text-[10px] rounded-full px-2 py-0.5 font-medium whitespace-nowrap ${
+              item.available
+                ? "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+                : "bg-red-50 dark:bg-red-900/30 text-red-400 dark:text-red-400"
+            }`}
+          >
+            {item.available ? "موجود" : item.unavailableReason}
+          </span>
+        </div>
+
+        <p className="text-gray-600 dark:text-gray-300 text-sm font-medium mt-auto">
+          {item.price?.toLocaleString("fa-IR")} تومان
+        </p>
+
+        <div className="flex gap-2 pt-1 border-t border-gray-200 dark:border-gray-700 mt-1">
+          <button
+            onClick={() => handleEditClick(item)}
+            className="flex-1 text-blue-600 hover:text-blue-800 text-xs font-medium py-1.5"
+          >
+            ویرایش
+          </button>
+          <button
+            onClick={() => handleDelete(item)}
+            className="flex-1 text-red-500 hover:text-red-700 text-xs font-medium py-1.5 border-r border-gray-200 dark:border-gray-700"
+          >
+            حذف
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderRow = (rows) => (
+    <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin animate-fade-in-up">
+      {rows.length <= 0 ? (
+        <p className="text-center text-gray-400 dark:text-gray-500 px-10">آیتمی یافت نشد</p>
+      ) : (
+        rows.map(row => renderCard(row, false))
+      )}
+    </div>
+  );
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gray-100 dark:bg-gray-950 p-6 transition-colors duration-300">
+    <div
+      dir="rtl"
+      className="min-h-screen bg-gray-100 dark:bg-gray-950 p-6 transition-colors duration-300"
+    >
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">مدیریت منو</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">افزودن، ویرایش و مدیریت آیتم‌های منو</p>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              مدیریت منو
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              افزودن، ویرایش و مدیریت آیتم‌های منو
+            </p>
           </div>
           <div className="flex items-center gap-3">
-            <ThemeToggle />
             <button
               onClick={handleAddClick}
               className="bg-blue-600 text-white rounded-lg px-5 py-2.5 font-medium hover:bg-blue-800 transition-all duration-300"
             >
               + افزودن آیتم جدید
+            </button>
+
+            <button
+              onClick={handleAddCategoryClick}
+              className="bg-blue-600 text-white rounded-lg px-5 py-2.5 font-medium hover:bg-blue-800 transition-all duration-300"
+            >
+              + افزودن دسته بندی جدید
             </button>
           </div>
         </div>
@@ -104,70 +239,66 @@ export default function MenuPage() {
           </div>
         )}
 
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 space-y-4 transition-colors duration-300">
-          <div className="max-w-xs">
-            <SelectField
-              label="فیلتر بر اساس دسته‌بندی"
-              value={categoryFilter}
-              onChange={setCategoryFilter}
-              options={categories.map((c) => ({ value: c.id, label: c.name }))}
-            />
-          </div>
-
-          {loading ? (
-            <p className="text-center text-gray-400 dark:text-gray-500 py-10">در حال بارگذاری...</p>
-          ) : filteredItems.length === 0 ? (
-            <p className="text-center text-gray-400 dark:text-gray-500 py-10">آیتمی یافت نشد</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-right">
-                <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 text-sm">
-                    <th className="py-3 px-2 font-medium">نام آیتم</th>
-                    <th className="py-3 px-2 font-medium">دسته‌بندی</th>
-                    <th className="py-3 px-2 font-medium">قیمت (تومان)</th>
-                    <th className="py-3 px-2 font-medium">وضعیت</th>
-                    <th className="py-3 px-2 font-medium">عملیات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredItems.map((item) => (
-                    <tr key={item.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                      <td className="py-3 px-2 text-gray-800 dark:text-gray-100">{item.name}</td>
-                      <td className="py-3 px-2 text-gray-600 dark:text-gray-300">{categoryName(item.categoryId)}</td>
-                      <td className="py-3 px-2 text-gray-600 dark:text-gray-300">{item.price?.toLocaleString("fa-IR")}</td>
-                      <td className="py-3 px-2">
-                        <span
-                          className={`text-xs rounded-full px-3 py-1 font-medium ${
-                            item.inStock
-                              ? "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400"
-                              : "bg-red-50 dark:bg-red-900/30 text-red-400 dark:text-red-400"
-                          }`}
-                        >
-                          {item.inStock ? "موجود" : "ناموجود"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-2 space-x-2 space-x-reverse">
-                        <button
-                          onClick={() => handleEditClick(item)}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                          ویرایش
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item)}
-                          className="text-red-500 hover:text-red-700 text-sm font-medium mr-3"
-                        >
-                          حذف
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+        <div className="max-w-xs">
+          <SelectField
+            label="فیلتر بر اساس دسته‌بندی"
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            options={[
+              { value: "any", label: "همه" },
+              ...categories.map((c) => ({ value: c.id.toString(), label: c.name })),
+            ]}
+          />
         </div>
+
+        {loading ? (
+          <p className="text-center text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800/60 py-10">
+            در حال بارگذاری...
+          </p>
+        ) : filteredItems.length === 0 ? (
+          <p className="text-center text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800/60 py-10">
+            آیتمی یافت نشد
+          </p>
+        ) : categoryFilter === "any"  ? (
+          <div className="space-y-2 bg-white dark:bg-gray-900 rounded-4xl animate-fade-in-up">
+            {filteredCategory.map(({ category, items: catItems }) => (
+              <div
+                key={category.id}
+                className="p-6 space-y-2 transition-colors duration-300"
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                    {category.name}
+                    <span className="text-sm font-normal text-gray-400 dark:text-gray-500 mr-2">
+                      ({catItems.length} آیتم)
+                    </span>
+                  </h2>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => handleEditCategoryClick(category)}
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        ویرایش دسته
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCategory(category, items)}
+                        className="text-sm text-red-600 hover:text-red-800 font-medium"
+                      >
+                        حذف دسته
+                      </button>
+                    </div>
+                </div>
+                {renderRow(catItems)}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {filteredItems.map((item) => renderCard(item, true))}
+            </div>
+          </div>
+        )}
       </div>
 
       <MenuItemModal
@@ -176,6 +307,13 @@ export default function MenuPage() {
         onSubmit={handleModalSubmit}
         categories={categories}
         initialData={editingItem}
+      />
+
+      <CategoryModal
+        open={categoryOpen}
+        onClose={() => setCategoryOpen(false)}
+        onSubmit={handleCategoryModalSubmit}
+        initialData={editingCategory}
       />
     </div>
   );

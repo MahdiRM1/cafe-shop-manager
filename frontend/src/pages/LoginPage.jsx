@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import FormField from "../components/ui/FormField";
 import ThemeToggle from '../components/ui/ThemeToggle';
+import PasswordField from "../components/ui/PasswordField";
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -11,7 +12,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,8 +25,7 @@ export default function LoginPage() {
             setError(response.message);
             return
         }
-        
-        navigate('/dashboard');
+        navigate('/');
     } catch (error) {console.log(error);setError("خطا در ورود کاربر");
     } finally {setLoading(false);}
   }
@@ -48,13 +48,7 @@ export default function LoginPage() {
           )}
 
           <FormField label="نام کاربری" type="text" value={username} onChange={setUsername} required/>
-          <FormField label="رمزعبور" type="password" value={password} onChange={setPassword} required/>
-
-          <p className="text-center text-sm text-slate-500 mt-6">
-            <a href="/auth/update-password" className="text-blue-600 hover:text-blue-700 font-medium">
-              تغییر رمز عبور 
-            </a>
-          </p>
+          <PasswordField label="رمزعبور" value={password} onChange={setPassword} required/>
 
           <button type="submit" disabled={loading}
           className="w-full bg-blue-600 text-white rounded-lg py-2.5 font-medium hover:bg-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">

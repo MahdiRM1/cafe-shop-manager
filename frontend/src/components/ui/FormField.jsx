@@ -4,6 +4,7 @@ export default function FormField({
   value,
   onChange,
   rtl,
+  placeholder,
   required = false,
 }) {
   return (
@@ -21,14 +22,16 @@ export default function FormField({
         "
       >
         {label}
+        {required && <span className="text-red-500 mr-1">*</span>}
       </legend>
-
+      
       <input
         type={type}
         value={value}
         dir={rtl ? "rtl" : "ltr"}
         onChange={(e) => onChange(e.target.value)}
         required={required}
+        placeholder={placeholder ? placeholder : value}
         className="w-full outline-none bg-transparent text-gray-800 dark:text-gray-100"
       />
     </fieldset>

@@ -15,6 +15,16 @@ export async function createMenuItem(payload) {
   return response.data;
 }
 
+export async function updateCategory(id, payload) {
+  const response = await api.put(`/api/categories/${id}`, payload);
+  return response.data;
+}
+
+export async function createCategory(payload) {
+  const response = await api.post("/api/categories", payload);
+  return response.data;
+}
+
 export async function updateMenuItem(id, payload) {
   const response = await api.put(`/api/menu-items/${id}`, payload);
   return response.data;
@@ -25,7 +35,17 @@ export async function deleteMenuItem(id) {
   return response.data;
 }
 
-export async function toggleMenuItemStatus(id, isActive) {
-  const response = await api.patch(`/menu/items/${id}/status`, { isActive });
+export async function deleteCategory(id) {
+  const response = await api.delete(`/api/categories/${id}`);
+  return response.data;
+}
+
+export async function getRecipe(menuItemId) {
+  const response = await api.get(`/api/menu-items/${menuItemId}/recipe`);
+  return response.data;
+}
+
+export async function updateRecipe(menuItemId, payload) {
+  const response = await api.put(`/api/menu-items/${menuItemId}/recipe`, payload);
   return response.data;
 }
